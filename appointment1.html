@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Appointment form</title>
+    <link rel="stylesheet" href="appointment.css">
+  </head>
+  <body>
+
+    <section class="container">
+      <header>
+        <h1 style="text-align: center; color: tomato;">Book a call</h1>
+        <h5 style="text-align: center">Book a call slot and our representative will call you</h5>
+      </header>
+      <hr width="100%" size="4px">
+      <form id="my-form" onsubmit="saveToLocalStorage(event)" >
+
+        <div>
+          <label for="name">Name:</label>
+          <input type="text" name="name" id="name" placeholder="Enter your name" required>
+        </div>
+
+        <div>
+          <label for="email">Email:</label>
+          <input type="text" name="email" id="email" placeholder="Enter your email" required>
+        </div>
+        
+        <div>
+          <label for="phone"> Phone:</label>
+          <input  type="text" name="phone" id="phone" placeholder="Enter phone number"required>
+        </div>
+        <div>Time for call:<br><input type="date" name="date"> <input type="time" name="time"></div>
+
+        <input style="background-color: tomato;" class="btn" type="submit" value="Get a call">
+
+
+
+      </form>
+
+    </section>
+    
+
+    <script>
+        function saveToLocalStorage(event){
+            event.preventDefault();
+            const name= event.target.name.value;
+            const email= event.target.email.value;
+            const phone= event.target.phone.value;
+            const time= event.target.time.value;
+            const date= event.target.date.value;
+      
+            const userDetails = {
+              name: name,
+              email: email,
+              phone: phone,
+              time: time,
+              date:date
+            };
+      
+            localStorage.setItem('userDetails', JSON.stringify(userDetails));
+      
+            console.log('User details saved:', userDetails);
+        }
+        const userDetails = JSON.parse(localStorage.getItem('userDetails'));
+        if(userDetails){
+          const container = document.querySelector('.container');
+          const detailsDiv = document.createElement('div');
+          detailsDiv.innerHTML = `${detailsDiv.innerHTML }`+ `
+            <p>Name: ${userDetails.name}</p>
+            <p>Email: ${userDetails.email}</p>
+            <p>Phone: ${userDetails.phone}</p>
+            <p>Date: ${userDetails.date}</p>
+            <p>Time: ${userDetails.time}</p>
+          `;
+          container.appendChild(detailsDiv);
+        }
+      </script>
+      
+  </body>
+</html>
