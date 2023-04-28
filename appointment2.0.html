@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Appointment form</title>
+    <link rel="stylesheet" href="appointment.css">
+  </head>
+  <body style="background-color: beige;">
+
+    <section class="container">
+      <header>
+        <h1 style="text-align: center; color: tomato;">Book a call</h1>
+        <h5 style="text-align: center">Book a call slot and our representative will call you</h5>
+      </header>
+      <hr width="100%" size="4px">
+      <form id="my-form" onsubmit="saveToLocalStorage(event)" >
+
+        <div>
+          <label for="name">Name:</label>
+          <input type="text" name="name" id="name" placeholder="Enter your name" required>
+        </div>
+
+        <div>
+          <label for="email">Email:</label>
+          <input type="text" name="email" id="email" placeholder="Enter your email" required>
+        </div>
+        
+        <div>
+          <label for="phone"> Phone:</label>
+          <input  type="text" name="phone" id="phone" placeholder="Enter phone number"required>
+        </div>
+        <div>Time for call:<br><input type="date" name="date" id="date"> <input type="time" name="time" id="time"></div>
+
+        <input style="background-color: tomato;" class="btn" type="submit" value="Get a call">
+
+      </form>
+      <hr><hr>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.6/axios.min.js"></script>
+
+      <div style="background-color: bisque;" id="user-details-container" class="data"></div>
+
+      
+
+      <script >
+        let userDetailsArr = [];
+
+        window.onload = displayUserDetails;
+
+        function saveToLocalStorage(event) {
+          event.preventDefault();
+          const name = event.target.name.value;
+          const email = event.target.email.value;
+          const phone = event.target.phone.value;
+          const time = event.target.time.value;
+          const date = event.target.date.value;
+
+          const userDetails = {
+            name: name,
+            email: email,
+            phone: phone,
+            time: time,
+            date: date,
+        };
+
+        // userDetailsArr.push(userDetails);
+        // localStorage.setItem("userDetailsArr", JSON.stringify(userDetailsArr));
+        // displayUserDetails(userDetailsArr);
+
+          axios.post("https://crudcrud.com/api/cb4512edcc284150a578118eda50e2be/appointmentData", userDetails)
+            .then(response => {
+              userDetailsArr.push(response.data);
+              displayUserDetails(userDetailsArr);
+              console.log(response);
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        }
+
+        function displayUserDetails() {
+          const container = document.querySelector("#user-details-container");
+          container.innerHTML = "";
+
+          axios.get('https://crudcrud.com/api/cb4512edcc284150a578118eda50e2be/appointmentData')
+            .then(response => {
+              userDetailsArr = response.data;
+
+              if (userDetailsArr.length === 0) {
+                const noDetailsDiv = document.createElement("div");
+                noDetailsDiv.innerText = "No user details found.";
+                container.appendChild(noDetailsDiv);
+              } else {
+                userDetailsArr.forEach((userDetails, index) => {
+                  const detailsDiv = document.createElement("div");
+                  detailsDiv.innerHTML = `
+                    <p>Name: ${userDetails.name}</p>
+                    <p>Email: ${userDetails.email}</p>
+                    <p>Phone: ${userDetails.phone}</p>
+                    <p>Date: ${userDetails.date}</p>
+                    <p>Time: ${userDetails.time}</p>
+                    <button onclick="editUserDetails(${index})">Edit</button>
+                    <button onclick="deleteUserDetails(${index})">Delete</button>
+                  `;
+                  container.appendChild(detailsDiv);
+                });
+              }
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        }
+
+
+        function editUserDetails(index) {
+          const userDetails = userDetailsArr[index];
+          const name = prompt("Enter new name", userDetails.name);
+          const email = prompt("Enter new email", userDetails.email);
+          const phone = prompt("Enter new phone number", userDetails.phone);
+          const date = prompt("Enter new date", userDetails.date);
+          const time = prompt("Enter new time", userDetails.time);
+
+          const updatedUserDetails = {
+            name: name,
+            email: email,
+            phone: phone,
+            date: date,
+            time: time,
+          };
+
+          axios.put(`https://crudcrud.com/api/cb4512edcc284150a578118eda50e2be/appointmentData/${userDetails._id}`, updatedUserDetails)
+          .then(response => {
+            userDetailsArr[index] = response.data;
+            displayUserDetails(userDetailsArr);
+          })
+          .catch(error => {
+            console.error(error);
+          });
+        }
+
+        
+        function deleteUserDetails(index) {
+          const userDetails = userDetailsArr[index];
+          axios.delete(`https://crudcrud.com/api/cb4512edcc284150a578118eda50e2be/appointmentData/${userDetails._id}`)
+            .then(response => {
+              userDetailsArr.splice(index, 1);
+              displayUserDetails();
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        }
+
+
+      </script>
+    </section>  
+  </body>
+</html>
